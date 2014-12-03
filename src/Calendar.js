@@ -648,7 +648,7 @@ function Calendar_constructor(element, overrides) {
 
 					// need to do this after View::render, so dates are calculated
 					updateHeaderTitle();
-					updateTodayButton();
+					updateNavigation();
 
 					getAndRenderEvents();
 				}
@@ -843,6 +843,18 @@ function Calendar_constructor(element, overrides) {
 		}
 		else {
 			header.enableButton('today');
+		}
+	}
+	
+	function updateNavigation() {
+		updateTodayButton();
+		
+		if(t.options.minDate) {
+			header.toggleEnable('prev', t.options.minDate.diff(currentView.start) < 0);
+		}
+		
+		if(t.options.maxDate) {
+			header.toggleEnable('next', t.options.maxDate.diff(currentView.end) > 0);
 		}
 	}
 	

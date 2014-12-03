@@ -38,6 +38,10 @@ Calendar.defaults = {
 	timezone: false,
 
 	//allDayDefault: undefined,
+	
+	// date restriction
+	minDate: null,
+	maxDate: null,
 
 	// locale
 	isRTL: false,

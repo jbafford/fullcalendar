@@ -16,6 +16,7 @@ function Header(calendar) {
 	t.enableButton = enableButton;
 	t.getViewsWithButtons = getViewsWithButtons;
 	t.el = null; // mirrors local `el`
+	t.toggleEnable = toggleEnable;
 	
 	// locals
 	var el;
@@ -256,6 +257,15 @@ function Header(calendar) {
 			el.find('.fc-' + buttonName + '-button')
 				.prop('disabled', false)
 				.removeClass(tm + '-state-disabled');
+		}
+	}
+	
+	
+	function toggleEnable(buttonName, enabled) {
+		if(enabled) {
+			enableButton(buttonName);
+		} else {
+			disableButton(buttonName);
 		}
 	}
 
