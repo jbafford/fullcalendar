@@ -400,7 +400,7 @@ function Calendar(element, instanceOptions) {
 
 					// need to do this after View::render, so dates are calculated
 					updateTitle();
-					updateTodayButton();
+					updateNavigation();
 
 					getAndRenderEvents();
 				}
@@ -555,6 +555,18 @@ function Calendar(element, instanceOptions) {
 		}
 		else {
 			header.enableButton('today');
+		}
+	}
+	
+	function updateNavigation() {
+		updateTodayButton();
+		
+		if(options.minDate) {
+			header.toggleEnable('prev', options.minDate.diff(currentView.start) < 0);
+		}
+		
+		if(options.maxDate) {
+			header.toggleEnable('next', options.maxDate.diff(currentView.end) > 0);
 		}
 	}
 	
