@@ -50,6 +50,10 @@ var defaults = {
 
 	//allDayDefault: undefined,
 	
+	// date restriction
+	minDate: null,
+	maxDate: null,
+	
 	// time formats
 	titleFormat: {
 		month: 'MMMM YYYY', // like "September 1986". each language will override this
@@ -728,7 +732,7 @@ function Calendar(element, instanceOptions) {
 
 					// need to do this after View::render, so dates are calculated
 					updateTitle();
-					updateTodayButton();
+					updateNavigation();
 
 					getAndRenderEvents();
 				}
@@ -883,6 +887,18 @@ function Calendar(element, instanceOptions) {
 		}
 		else {
 			header.enableButton('today');
+		}
+	}
+	
+	function updateNavigation() {
+		updateTodayButton();
+		
+		if(options.minDate) {
+			header.toggleEnable('prev', options.minDate.diff(currentView.start) < 0);
+		}
+		
+		if(options.maxDate) {
+			header.toggleEnable('next', options.maxDate.diff(currentView.end) > 0);
 		}
 	}
 	
@@ -1070,6 +1086,7 @@ function Header(calendar, options) {
 	t.disableButton = disableButton;
 	t.enableButton = enableButton;
 	t.getViewsWithButtons = getViewsWithButtons;
+	t.toggleEnable = toggleEnable;
 	
 	// locals
 	var el = $();
@@ -1269,6 +1286,15 @@ function Header(calendar, options) {
 		el.find('.fc-' + buttonName + '-button')
 			.removeAttr('disabled')
 			.removeClass(tm + '-state-disabled');
+	}
+	
+	
+	function toggleEnable(buttonName, enabled) {
+		if(enabled) {
+			enableButton(buttonName);
+		} else {
+			disableButton(buttonName);
+		}
 	}
 
 
