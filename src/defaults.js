@@ -34,6 +34,10 @@ var defaults = {
 
 	//allDayDefault: undefined,
 	
+	// date restriction
+	minDate: null,
+	maxDate: null,
+	
 	// time formats
 	titleFormat: {
 		month: 'MMMM YYYY', // like "September 1986". each language will override this
