@@ -282,6 +282,7 @@ var Grid = FC.Grid = Class.extend(ListenerMixin, MouseIgnorerMixin, {
 		var isSelectable = view.opt('selectable');
 		var dayClickHit; // null if invalid dayClick
 		var selectionSpan; // null if invalid selection
+		var previousY;
 
 		// this listener tracks a mousedown on a day element, and a subsequent drag.
 		// if the drag ends on the same day, it is a 'dayClick'.
@@ -292,7 +293,8 @@ var Grid = FC.Grid = Class.extend(ListenerMixin, MouseIgnorerMixin, {
 				dayClickHit = dragListener.origHit; // for dayClick, where no dragging happens
 				selectionSpan = null;
 			},
-			dragStart: function() {
+			dragStart: function(ev) {
+				previousY = ev.clientY;
 				view.unselect(); // since we could be rendering a new selection, we want to clear any old one
 			},
 			hitOver: function(hit, isOrig, origHit) {
@@ -327,17 +329,21 @@ var Grid = FC.Grid = Class.extend(ListenerMixin, MouseIgnorerMixin, {
 			},
 			interactionEnd: function(ev, isCancelled) {
 				if (!isCancelled) {
+					var distanceY = Math.abs(ev.clientY - previousY);
+					
 					if (
 						dayClickHit &&
 						!_this.isIgnoringMouse // see hack in dayTouchStart
+						&& distanceY < view.opt('mouseThreshold')
 					) {
+						view.unrenderSelection();
 						view.triggerDayClick(
 							_this.getHitSpan(dayClickHit),
 							_this.getHitEl(dayClickHit),
 							ev
 						);
 					}
-					if (selectionSpan) {
+					else if (selectionSpan) {
 						// the selection will already have been rendered. just report it
 						view.reportSelection(selectionSpan, ev);
 					}
