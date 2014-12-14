@@ -92,6 +92,7 @@ $.extend(Grid.prototype, {
 		var start; // the inclusive start of the selection
 		var end; // the *exclusive* end of the selection
 		var dayEl;
+		var previousY;
 
 		// this listener tracks a mousedown on a day element, and a subsequent drag.
 		// if the drag ends on the same day, it is a 'dayClick'.
@@ -100,6 +101,7 @@ $.extend(Grid.prototype, {
 			//distance: 5, // needs more work if we want dayClick to fire correctly
 			scroll: view.opt('dragScroll'),
 			dragStart: function() {
+				previousY = ev.clientY;
 				view.unselect(); // since we could be rendering a new selection, we want to clear any old one
 			},
 			cellOver: function(cell, date) {
@@ -128,11 +130,14 @@ $.extend(Grid.prototype, {
 				enableCursor();
 			},
 			listenStop: function(ev) {
+				var distanceY = Math.abs(ev.clientY - previousY);
+				
 				if (dates) { // started and ended on a cell?
-					if (dates[0].isSame(dates[1])) {
+					if (dates[0].isSame(dates[1]) && distanceY < view.opt('mouseThreshold')) {
+						_this.destroySelection();
 						view.trigger('dayClick', dayEl[0], start, ev);
 					}
-					if (isSelectable) {
+					else if (isSelectable) {
 						// the selection will already have been rendered. just report it
 						view.reportSelection(start, end, ev);
 					}
