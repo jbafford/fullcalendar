@@ -94,6 +94,7 @@ var defaults = {
 	
 	//selectable: false,
 	unselectAuto: true,
+	mouseThreshold: 4,
 	
 	dropAccept: '*',
 
