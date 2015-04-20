@@ -3119,6 +3119,7 @@ var Grid = fc.Grid = RowRenderer.extend({
 		var isSelectable = view.opt('selectable');
 		var dayClickCell; // null if invalid dayClick
 		var selectionRange; // null if invalid selection
+		var previousY;
 
 		// this listener tracks a mousedown on a day element, and a subsequent drag.
 		// if the drag ends on the same day, it is a 'dayClick'.
@@ -3127,6 +3128,7 @@ var Grid = fc.Grid = RowRenderer.extend({
 			//distance: 5, // needs more work if we want dayClick to fire correctly
 			scroll: view.opt('dragScroll'),
 			dragStart: function() {
+				previousY = ev.clientY;
 				view.unselect(); // since we could be rendering a new selection, we want to clear any old one
 			},
 			cellOver: function(cell, isOrig, origCell) {
@@ -3150,10 +3152,13 @@ var Grid = fc.Grid = RowRenderer.extend({
 				enableCursor();
 			},
 			listenStop: function(ev) {
-				if (dayClickCell) {
+				var distanceY = Math.abs(ev.clientY - previousY);
+				
+				if (dayClickCell && distanceY < view.opt('mouseThreshold')) {
+					view.destroySelection();
 					view.trigger('dayClick', _this.getCellDayEl(dayClickCell), dayClickCell.start, ev);
 				}
-				if (selectionRange) {
+				else if (selectionRange) {
 					// the selection will already have been rendered. just report it
 					view.reportSelection(selectionRange, ev);
 				}
@@ -7993,7 +7998,7 @@ function Calendar_constructor(element, overrides) {
 
 					// need to do this after View::render, so dates are calculated
 					updateHeaderTitle();
-					updateTodayButton();
+					updateNavigation();
 
 					getAndRenderEvents();
 				}
@@ -8147,6 +8152,18 @@ function Calendar_constructor(element, overrides) {
 		}
 		else {
 			header.enableButton('today');
+		}
+	}
+	
+	function updateNavigation() {
+		updateTodayButton();
+		
+		if(options.minDate) {
+			header.toggleEnable('prev', options.minDate.diff(currentView.start) < 0);
+		}
+		
+		if(options.maxDate) {
+			header.toggleEnable('next', options.maxDate.diff(currentView.end) > 0);
 		}
 	}
 	
@@ -8343,6 +8360,10 @@ Calendar.defaults = {
 	timezone: false,
 
 	//allDayDefault: undefined,
+	
+	// date restriction
+	minDate: null,
+	maxDate: null,
 
 	// locale
 	isRTL: false,
@@ -8381,6 +8402,7 @@ Calendar.defaults = {
 	
 	//selectable: false,
 	unselectAuto: true,
+	mouseThreshold: 4,
 	
 	dropAccept: '*',
 
@@ -8638,6 +8660,7 @@ function Header(calendar, options) {
 	t.disableButton = disableButton;
 	t.enableButton = enableButton;
 	t.getViewsWithButtons = getViewsWithButtons;
+	t.toggleEnable = toggleEnable;
 	
 	// locals
 	var el = $();
@@ -8842,6 +8865,15 @@ function Header(calendar, options) {
 		el.find('.fc-' + buttonName + '-button')
 			.removeAttr('disabled')
 			.removeClass(tm + '-state-disabled');
+	}
+	
+	
+	function toggleEnable(buttonName, enabled) {
+		if(enabled) {
+			enableButton(buttonName);
+		} else {
+			disableButton(buttonName);
+		}
 	}
 
 
