@@ -34,6 +34,10 @@ Calendar.defaults = {
 	timezone: false,
 
 	//allDayDefault: undefined,
+	
+	// date restriction
+	minDate: null,
+	maxDate: null,
 
 	// locale
 	isRTL: false,
@@ -72,6 +76,7 @@ Calendar.defaults = {
 	
 	//selectable: false,
 	unselectAuto: true,
+	mouseThreshold: 4,
 	
 	dropAccept: '*',
 

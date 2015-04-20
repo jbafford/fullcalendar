@@ -341,6 +341,7 @@ var Grid = fc.Grid = RowRenderer.extend({
 		var isSelectable = view.opt('selectable');
 		var dayClickCell; // null if invalid dayClick
 		var selectionRange; // null if invalid selection
+		var previousY;
 
 		// this listener tracks a mousedown on a day element, and a subsequent drag.
 		// if the drag ends on the same day, it is a 'dayClick'.
@@ -349,6 +350,7 @@ var Grid = fc.Grid = RowRenderer.extend({
 			//distance: 5, // needs more work if we want dayClick to fire correctly
 			scroll: view.opt('dragScroll'),
 			dragStart: function() {
+				previousY = ev.clientY;
 				view.unselect(); // since we could be rendering a new selection, we want to clear any old one
 			},
 			cellOver: function(cell, isOrig, origCell) {
@@ -372,10 +374,13 @@ var Grid = fc.Grid = RowRenderer.extend({
 				enableCursor();
 			},
 			listenStop: function(ev) {
-				if (dayClickCell) {
+				var distanceY = Math.abs(ev.clientY - previousY);
+				
+				if (dayClickCell && distanceY < view.opt('mouseThreshold')) {
+					view.destroySelection();
 					view.trigger('dayClick', _this.getCellDayEl(dayClickCell), dayClickCell.start, ev);
 				}
-				if (selectionRange) {
+				else if (selectionRange) {
 					// the selection will already have been rendered. just report it
 					view.reportSelection(selectionRange, ev);
 				}
